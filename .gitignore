@@ -1,0 +1,8 @@
+node_modules/
+assets/node_modules/
+package-lock.json
+assets/package-lock.json
+assets/package.json
+.DS_Store
+assets/.DS_Store
+assets/~$*
