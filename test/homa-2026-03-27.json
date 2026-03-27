@@ -1,0 +1,32 @@
+{
+  "journal": {
+    "date": "2026-03-27",
+    "project_name": "Homa",
+    "created_by": "Tristan Poupart"
+  },
+  "activities": [
+    {
+      "entry_time": "2026-03-27T23:35:10.073977+00:00",
+      "content": "Ouverture du chantier."
+    }
+  ],
+  "events": [
+    {
+      "entry_time": "2026-03-27T23:38:38.452418+00:00",
+      "title": "Accident — bretelle nord A10",
+      "description": "Un camion est entré dans le fossé, causant un carambolage impliquant 3 voitures.",
+      "location": "Côté nord-est",
+      "has_photos": false,
+      "photo_count": 0
+    }
+  ],
+  "quantities": [
+    {
+      "entrepreneur": "Marque Plus",
+      "discipline": null,
+      "item": "Marquage jaune",
+      "qty": 30,
+      "unit": "m linéaire"
+    }
+  ]
+}

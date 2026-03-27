@@ -438,18 +438,25 @@ const DEMO_DATA = {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  const args      = process.argv.slice(2);
-  const jIdx      = args.indexOf("--journal-id");
-  const journalId = jIdx !== -1 ? args[jIdx + 1] : null;
+  const args       = process.argv.slice(2);
+  const jIdx       = args.indexOf("--journal-id");
+  const dIdx       = args.indexOf("--data-file");
+  const journalId  = jIdx !== -1 ? args[jIdx + 1] : null;
+  const dataFile   = dIdx !== -1 ? args[dIdx + 1] : null;
 
   let data;
-  if (journalId) {
+  if (dataFile) {
+    console.log(`📂 Chargement des données depuis ${dataFile}...`);
+    data = JSON.parse(fs.readFileSync(dataFile, "utf-8"));
+    console.log(`✅ ${data.activities.length} activité(s), ${data.events.length} événement(s), ${data.quantities.length} quantité(s)`);
+  } else if (journalId) {
     console.log(`⏳ Récupération des données (journal_id: ${journalId})...`);
     data = await fetchJournalData(journalId);
     console.log(`✅ ${data.activities.length} activité(s), ${data.events.length} événement(s), ${data.quantities.length} quantité(s)`);
   } else {
     console.log("ℹ️  Aucun --journal-id fourni — utilisation des données de démo.");
     console.log("    Usage : SUPABASE_SERVICE_ROLE_KEY=... node generate-rapport.js --journal-id <uuid>");
+    console.log("    Ou    : node generate-rapport.js --data-file <chemin.json>");
     data = DEMO_DATA;
   }
 
