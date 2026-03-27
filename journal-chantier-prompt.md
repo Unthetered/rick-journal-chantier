@@ -1,6 +1,6 @@
 # Journal de Chantier — Prompt Agent Claude
 
-**Version:** 2.2.0
+**Version:** 2.3.0
 **Dernière mise à jour:** 2026-03-27
 **Auteur:** Tristan
 
@@ -10,7 +10,8 @@
 
 | Version | Date       | Changement                                                       |
 |---------|------------|------------------------------------------------------------------|
-| 2.2.0   | 2026-03-27 | Confirmation post-entrée + génération DOCX native               |
+| 2.3.0   | 2026-03-27 | BUG-008 : routage strict par mot-clé + RAPPORT FINAL texte      |
+| 2.2.0   | 2026-03-27 | Confirmation post-entrée + specs DOCX                           |
 | 2.1.0   | 2026-03-27 | Stockage Supabase via MCP — 5 outils journal                    |
 | 2.0.0   | 2026-03-27 | 3 sections, commandes vocales, lexique, rapport fin de journée  |
 | 1.0.0   | 2026-03-27 | Version initiale                                                 |
