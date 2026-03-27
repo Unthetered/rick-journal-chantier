@@ -95,6 +95,34 @@ ALTER TABLE public.journals RENAME TO journal_journals;
 
 ---
 
+---
+
+### BUG-007 — Schéma DB désynchronisé du code edge function (découvert au test terrain)
+
+**Symptôme :** Lors du premier test terrain avec Éric (Autoroute 10, 27 mars 2026), aucune entrée ne se persistait. Claude affichait : *"erreur côté serveur sur le champ raw"* et *"colonnes manquantes : raw, photo_count, discipline"*.
+
+**Cause :** Le schéma DB avait été créé à une version antérieure du code (v1) et jamais mis à jour pour correspondre à la fonction edge finale. Divergences :
+
+| Table | DB (réel) | Code (attendu) |
+|-------|-----------|----------------|
+| `journal_activities` | `raw_transcription`, `entry_time TEXT NOT NULL` sans DEFAULT | `raw`, `entry_time TIMESTAMPTZ DEFAULT now()` |
+| `journal_events` | pas de `title`, `photo_count`, `photo_urls`; `entry_time TEXT NOT NULL` | tous ces champs |
+| `journal_quantities` | `quantity TEXT NOT NULL`, pas de `entrepreneur`/`discipline`/`unit` | `qty NUMERIC`, + 3 colonnes |
+
+Le problème racine : `entry_time` était `TEXT NOT NULL` sans valeur DEFAULT — tout insert sans ce champ explicite échouait immédiatement.
+
+**Fix :** Migration `fix_journal_schema_v2` appliquée en production :
+- `raw_transcription` → `raw` (activities)
+- `entry_time` → `TIMESTAMPTZ NOT NULL DEFAULT now()` sur les 3 tables
+- Ajout `title`, `photo_count`, `photo_urls` (events)
+- `quantity TEXT` → `qty NUMERIC` nullable (quantities)
+- Ajout `entrepreneur`, `discipline`, `unit` (quantities)
+- `description` rendu nullable dans events
+
+**Leçon :** Toujours valider le schéma DB contre le code de la fonction edge avant le premier déploiement.
+
+---
+
 ## Dettes techniques connues
 
 | ID | Description | Priorité | Phase cible |
