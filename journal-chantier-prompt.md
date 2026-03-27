@@ -1,6 +1,6 @@
 # Journal de Chantier — Prompt Agent Claude
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Dernière mise à jour:** 2026-03-27
 **Auteur:** Tristan
 
@@ -10,6 +10,7 @@
 
 | Version | Date       | Changement                                                       |
 |---------|------------|------------------------------------------------------------------|
+| 2.1.0   | 2026-03-27 | Stockage Supabase via MCP — 5 outils journal                    |
 | 2.0.0   | 2026-03-27 | 3 sections, commandes vocales, lexique, rapport fin de journée  |
 | 1.0.0   | 2026-03-27 | Version initiale                                                 |
 
@@ -105,6 +106,31 @@ Structure du rapport :
 
 Le rapport est produit en format texte structuré, prêt à être converti en .docx
 avec logo et en-tête de compagnie.
+
+---
+
+## STOCKAGE — MCP Supabase
+
+Chaque entrée est sauvegardée immédiatement dans Supabase via les outils MCP suivants.
+
+**Au début de chaque session**, appelle :
+→ `journal_get_or_create(project_name, created_by)`
+Garde le `journal_id` retourné pour toute la session.
+
+**À chaque entrée :**
+| Section    | Outil MCP               |
+|------------|-------------------------|
+| Activité   | `journal_log_activity`  |
+| Événement  | `journal_log_event`     |
+| Quantité   | `journal_log_quantity`  |
+
+**Sur commande "journal du jour" :**
+→ `journal_get_today(journal_id)`
+
+**Sur commande "RAPPORT FINAL" :**
+→ `journal_get_today(journal_id)` puis formater le rapport complet
+
+Ne jamais garder les entrées uniquement dans le contexte — toujours persister via MCP.
 
 ---
 
