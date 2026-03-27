@@ -1,7 +1,8 @@
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   ImageRun, AlignmentType, BorderStyle, WidthType, ShadingType,
-  VerticalAlign, Footer, PageBreak, TabStopType, TabStopPosition
+  VerticalAlign, Footer, PageBreak, TabStopType, TabStopPosition,
+  PageNumber
 } = require("docx");
 const fs = require("fs");
 const path = require("path");
@@ -17,6 +18,7 @@ const WHITE = "FFFFFF";
 const PAGE_W  = 11906;
 const PAGE_H  = 16838;
 const MARGIN  = 1418;
+const MARGIN_TOP = 720; // ~1.25 cm
 const CONTENT = PAGE_W - MARGIN * 2;   // 9070 DXA
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -65,13 +67,13 @@ function spacer(pts = 120) {
 }
 
 // ── Logo or placeholder ───────────────────────────────────────────────────────
-const logoPath = path.join(__dirname, "logo-maestro.png");
+const logoPath = path.join(__dirname, "logo-maestro.jpeg");
 let logoElement;
 if (fs.existsSync(logoPath)) {
   const logoData = fs.readFileSync(logoPath);
   logoElement = new Paragraph({
     children: [new ImageRun({
-      type: "png",
+      type: "jpg",
       data: logoData,
       transformation: { width: 113, height: 111 },
       altText: { title: "Maestro Mobilit\u00e9", description: "Logo", name: "logo-maestro" },
@@ -86,22 +88,43 @@ if (fs.existsSync(logoPath)) {
 // ── Header table — logo left / info right (sans No. projet) ──────────────────
 const COL_L = Math.round(CONTENT * 0.4);
 const COL_R = CONTENT - COL_L;
+const LOGO_W = 1500;
+const ADDR_W = COL_L - LOGO_W;
+
+// Logo + adresse côte à côte dans un tableau imbriqué
+const logoAdresseTable = new Table({
+  width: { size: COL_L, type: WidthType.DXA },
+  columnWidths: [LOGO_W, ADDR_W],
+  rows: [new TableRow({
+    children: [
+      new TableCell({
+        borders: noBorders,
+        width: { size: LOGO_W, type: WidthType.DXA },
+        verticalAlign: VerticalAlign.CENTER,
+        margins: { top: 0, bottom: 0, left: 0, right: 120 },
+        children: [logoElement],
+      }),
+      new TableCell({
+        borders: noBorders,
+        width: { size: ADDR_W, type: WidthType.DXA },
+        verticalAlign: VerticalAlign.TOP,
+        margins: { top: 0, bottom: 0, left: 0, right: 0 },
+        children: [
+          new Paragraph({ children: [new TextRun({ text: "7441 rue Boyer", color: GREY, size: 16, font: "Calibri" })] }),
+          new Paragraph({ children: [new TextRun({ text: "Montr\u00e9al, Qu\u00e9bec", color: GREY, size: 16, font: "Calibri" })] }),
+          new Paragraph({ children: [new TextRun({ text: "H2R 2R9", color: GREY, size: 16, font: "Calibri" })] }),
+        ],
+      }),
+    ],
+  })],
+});
 
 const headerTable = new Table({
   width: { size: CONTENT, type: WidthType.DXA },
   columnWidths: [COL_L, COL_R],
   rows: [new TableRow({
     children: [
-      cell([
-        logoElement,
-        new Paragraph({
-          spacing: { before: 60 },
-          children: [new TextRun({ text: "7441 rue Boyer", color: GREY, size: 16, font: "Calibri" })],
-        }),
-        new Paragraph({
-          children: [new TextRun({ text: "Montr\u00e9al, Qu\u00e9bec, H2R 2R9", color: GREY, size: 16, font: "Calibri" })],
-        }),
-      ], { width: COL_L }),
+      cell([logoAdresseTable], { width: COL_L }),
       cell([
         new Paragraph({
           alignment: AlignmentType.RIGHT,
@@ -360,8 +383,14 @@ const docFooter = new Footer({
       ],
     }),
     new Paragraph({
-      alignment: AlignmentType.RIGHT,
-      children: [new TextRun({ text: "Rapport g\u00e9n\u00e9r\u00e9 par Maestro Mobilit\u00e9", size: 14, color: GREY, font: "Calibri" })],
+      tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+      children: [
+        new TextRun({ text: "Rapport g\u00e9n\u00e9r\u00e9 par Maestro Mobilit\u00e9", size: 14, color: GREY, font: "Calibri" }),
+        new TextRun({ text: "\t", size: 14, font: "Calibri" }),
+        new TextRun({ children: [PageNumber.CURRENT], size: 14, color: GREY, font: "Calibri" }),
+        new TextRun({ text: "\u00a0/\u00a0", size: 14, color: GREY, font: "Calibri" }),
+        new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 14, color: GREY, font: "Calibri" }),
+      ],
     }),
   ],
 });
@@ -375,7 +404,7 @@ const doc = new Document({
     properties: {
       page: {
         size: { width: PAGE_W, height: PAGE_H },
-        margin: { top: MARGIN, right: MARGIN, bottom: MARGIN, left: MARGIN },
+        margin: { top: MARGIN_TOP, right: MARGIN, bottom: MARGIN, left: MARGIN },
       },
     },
     footers: { default: docFooter },

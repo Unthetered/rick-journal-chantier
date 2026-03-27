@@ -1,7 +1,31 @@
 # Journal de Chantier — Agent Claude
 
-Système de journal de chantier basé sur Claude.ai.
-Conçu pour une utilisation mobile sur le terrain, avec notes vocales.
+Système de journal de chantier basé sur Claude.ai pour Maestro Mobilité.
+Conçu pour une utilisation mobile sur le terrain, avec notes vocales et stockage persistant.
+
+---
+
+## Démarrage rapide
+
+**Pour un travailleur (première fois) :** voir `onboarding-eric.md`
+
+**Pour chaque journée :**
+1. Ouvrir le projet **Journal de Chantier** dans Claude.ai
+2. Envoyer : `Bonjour, je suis [Nom], chantier [Nom du chantier]`
+3. Dicter les notes au fil de la journée
+4. Fin de journée : `RAPPORT FINAL`
+
+---
+
+## Commandes disponibles
+
+| Message envoyé         | Action                                              |
+|------------------------|-----------------------------------------------------|
+| (texte normal)         | Entrée Activité — horodatée, corrigée, sauvegardée  |
+| `ÉVÉNEMENT`            | Lance le dialogue événement (description, lieu, photos) |
+| `QUANTITÉ` / `QTÉ`     | Lance le dialogue quantité (item, qté, unité)       |
+| `journal du jour`      | Affiche toutes les entrées du jour                  |
+| `RAPPORT FINAL`        | Génère le rapport structuré de la journée           |
 
 ---
 
@@ -9,47 +33,57 @@ Conçu pour une utilisation mobile sur le terrain, avec notes vocales.
 
 ```
 rick-journal-chantier/
-├── journal-chantier-prompt.md   # Prompt versionné à coller dans Claude.ai Projects
+├── README.md                    # Ce fichier
+├── ARCHITECTURE.md              # Diagramme système, flux de données
+├── ROADMAP.md                   # Phases, statut, prochaines étapes
+├── BUG-LOG.md                   # Bugs rencontrés et résolus
+├── journal-chantier-prompt.md   # Prompt versionné Claude.ai (source de vérité)
 ├── lexique.md                   # Abréviations et termes techniques
-├── specs/
-│   └── rapport-format.md        # Specs du rapport de fin de journée
-└── README.md
+├── onboarding-eric.md           # Guide d'installation pour les travailleurs
+├── onboarding-eric.pdf          # Version PDF du guide
+└── assets/
+    ├── generate-rapport.js      # Script Node.js → génère rapport-template.docx
+    ├── logo-maestro.jpeg        # Logo Maestro Mobilité (fond blanc)
+    └── rapport-template.docx   # Dernier rapport généré (output)
 ```
 
----
-
-## Démarrage rapide
-
-1. Ouvrir **Claude.ai → Projects → [Nom du chantier]**
-2. Coller le contenu du bloc de code dans `journal-chantier-prompt.md` dans les instructions du projet
-3. Sur le terrain : dicter une note vocale → Claude formate et horodate
-4. Fin de journée : dire **"RAPPORT FINAL"** → Claude génère le rapport
-
----
-
-## Types d'entrées
-
-| Déclencheur            | Section       | Ce que Claude fait                              |
-|------------------------|---------------|--------------------------------------------------|
-| (message normal)       | Activités     | Formate + horodate                              |
-| `ÉVÉNEMENT` / `EVENT`  | Événements    | Pose 3 questions : description, lieu, photos    |
-| `QUANTITÉ` / `QTÉ`     | Quantités     | Pose 2 questions : item facturable, quantité    |
-| `RAPPORT FINAL`        | —             | Génère le rapport complet de la journée         |
-
----
-
-## Roadmap
-
-- [x] v1.0 — Prompt de base, notes vocales, horodatage
-- [x] v2.0 — 3 sections, commandes vocales, lexique, rapport fin de journée
-- [ ] v3.0 — Stockage persistant (Google Drive ou repo Git par chantier)
-- [ ] v4.0 — Rapport .docx avec logo, en-tête compagnie, infos client
-- [ ] v5.0 — Intégration CRM pour infos client automatiques
-- [ ] v6.0 — Interface web pour navigation et modification des entrées
+**Edge function (repo séparé) :**
+```
+~/Developer/open-brain-functions/supabase/functions/journal-chantier-mcp/
+├── index.ts       # Serveur MCP — 5 outils journal
+└── deno.json
+```
 
 ---
 
 ## Mettre à jour le prompt
 
 Voir les instructions en bas de `journal-chantier-prompt.md`.
-Toujours versionner + pousser avant de notifier l'équipe.
+Incrémenter la version → commit → push → notifier l'équipe.
+
+---
+
+## Générer un rapport DOCX
+
+```bash
+cd /Users/tpoupart/Desktop/Rick/assets
+node generate-rapport.js
+# → produit rapport-template.docx dans assets/
+```
+
+Pré-requis : `npm install` (installe la dépendance `docx`).
+
+---
+
+## Déployer la fonction edge
+
+```bash
+cd ~/Developer/open-brain-functions
+./deploy.sh
+```
+
+---
+
+## Contacts
+
+- **Tristan Poupart** — Maestro Mobilité, architecte du système
