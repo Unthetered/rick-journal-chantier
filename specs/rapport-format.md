@@ -57,8 +57,12 @@ Tableau récapitulatif :
 
 ---
 
+## Informations compagnie
+
+- **Nom :** Maestro Mobilité
+- **Adresse :** 7441 rue Boyer, Montréal, Québec, H2R 2R9
+- **Logo :** `assets/logo-maestro.png` (fond blanc, PNG)
+
 ## À définir
-- [ ] Nom et adresse exacte de la compagnie
-- [ ] Fichier logo (format PNG recommandé)
 - [ ] Template Word de base (.dotx)
 - [ ] Champs CRM à connecter (éventuellement)
